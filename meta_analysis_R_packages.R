@@ -25,6 +25,22 @@ head(packages.list)
 # build a dependency graph
 tags <- c(packages.list)
 dg <- makeDepGraph(tags, enhances = TRUE)
+sort(degree(dg))
+Isolated = which(degree(dg)<10)
+dg2 = delete.vertices(dg, Isolated)
+V(dg2)
+vn <- toVisNetworkData(dg2)
+vn$nodes$title<-vn$nodes$label
+
+# Nodes are sized by degree (the number of links to other packages)
+degree_value <- degree(dg2, mode = "all")
+vn$nodes$value <- degree_value[match(vn$nodes$id, names(degree_value))]
+visNetwork(nodes = vn$nodes, edges = vn$edges,main="Both",height = "500px", width = "100%")%>%
+  visOptions(highlightNearest = TRUE)%>%
+  visNodes(color="blue")%>%
+  visSave(file =paste0(here(),"/Plots/both.html"), selfcontained = T)
+
+
 
 #split in to depends and imports
 
@@ -58,7 +74,7 @@ visNetwork(nodes = vn2$nodes, edges = vn2$edges,main="Imports",height = "500px",
   visNodes(color="red")%>%
   visSave(file =paste0(here(),"/Plots/Imports.html"), selfcontained = T)
 
-
+degree_value2[order(degree_value2)]
 
 
 
