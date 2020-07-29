@@ -58,7 +58,7 @@ visNetwork(nodes = vn2$nodes, edges = vn2$edges,main="Imports",height = "500px",
   visNodes(color="red")%>%
   visSave(file =paste0(here(),"/Plots/Imports.html"), selfcontained = T)
 
-
+degree_value2[order(degree_value2)]
 
 
 
