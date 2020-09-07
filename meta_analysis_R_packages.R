@@ -50,6 +50,12 @@ gDepends <- subgraph.edges(graph=dg, eids=which(E(dg)$type=="Depends"), delete.v
 # Imports indicates packages that are needed by the focal package (this is more likely now - does not load the whole package just the used functions)
 gImports <- subgraph.edges(graph=dg, eids=which(E(dg)$type=="Imports"), delete.vertices = TRUE)
 
+sort(degree(gImports))
+
+V(gImports)$name
+
+plot(gImports,vertex.label = ifelse(degree(gImports) > 25, V(gImports)$name, NA), vertex.size=4, edge.arrow.size=.2 )
+
 #Depends visNet
 vn1 <- toVisNetworkData(gDepends)
 vn1$nodes$title<-vn1$nodes$label
@@ -69,13 +75,47 @@ vn2$nodes$title<-vn2$nodes$label
 # Nodes are sized by degree (the number of links to other packages)
 degree_value2 <- degree(gImports, mode = "all")
 vn2$nodes$value <- degree_value2[match(vn2$nodes$id, names(degree_value2))]
-visNetwork(nodes = vn2$nodes, edges = vn2$edges,main="Imports",height = "500px", width = "100%")%>%
+visNetwork(nodes = vn2$nodes, edges = vn2$edges,main="Meta-analysis packages",height = "500px", width = "100%")%>%
   visOptions(highlightNearest = TRUE)%>%
   visNodes(color="red")%>%
   visSave(file =paste0(here(),"/Plots/Imports.html"), selfcontained = T)
 
 degree_value2[order(degree_value2)]
 
+##### Remove nodes degree <5
+
+Isolated = which(degree(gImports)<5)
+G2 = delete.vertices(gImports, Isolated)
+LO2 = layout_with_gem(G2)
+par(bg="gray40")
+plot(G2, layout=LO2, vertex.label=NA, edge.arrow.size=0.2, vertex.size=degree(G2), vertex.color="red", edge.color="#C0C0C0")
+
+vn2 <- toVisNetworkData(G2)
+vn2$nodes$title<-vn2$nodes$label
+# Nodes are sized by degree (the number of links to other packages)
+degree_value2 <- degree(G2, mode = "all")
+vn2$nodes$value <- degree_value2[match(vn2$nodes$id, names(degree_value2))]
+visNetwork(nodes = vn2$nodes, edges = vn2$edges,main="Meta-analysis packages",height = "500px", width = "100%")%>%
+  visOptions(highlightNearest = TRUE)%>%
+  visNodes(color="red")%>%
+  visSave(file =paste0(here(),"/Plots/Imports.html"), selfcontained = T)
 
 
-
+# ##### Remove nodes degree <8
+# 
+# Isolated = which(degree(gImports)<8)
+# G2 = delete.vertices(gImports, Isolated)
+# LO2 = layout_with_fr(G2)
+# plot(G2, layout=LO2)
+# 
+# vn2 <- toVisNetworkData(G2)
+# vn2$nodes$title<-vn2$nodes$label
+# # Nodes are sized by degree (the number of links to other packages)
+# degree_value2 <- degree(G2, mode = "all")
+# vn2$nodes$value <- degree_value2[match(vn2$nodes$id, names(degree_value2))]
+# visNetwork(nodes = vn2$nodes, edges = vn2$edges,main="Meta-analysis packages",height = "500px", width = "100%")%>%
+#   visOptions(highlightNearest = TRUE)%>%
+#   visNodes(color="red")%>%
+#   visSave(file =paste0(here(),"/Plots/Imports.html"), selfcontained = T)
+# 
+# 
